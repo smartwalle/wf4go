@@ -90,23 +90,23 @@ func (this *Process) AddEndTask(t *Task) {
 	this.EndTaskId = t.TaskId
 }
 
-func (this *Process) Link(name string, source, target *Task, c ...*Condition) *Flow {
-	if source == nil || target == nil {
+func (this *Process) Link(name string, sourceTask, targetTask *Task, c ...*Condition) *Flow {
+	if sourceTask == nil || targetTask == nil {
 		return nil
 	}
-	if source.TaskId == target.TaskId {
+	if sourceTask.TaskId == targetTask.TaskId {
 		return nil
 	}
-	this.AddTask(source)
-	this.AddTask(target)
+	this.AddTask(sourceTask)
+	this.AddTask(targetTask)
 
 	var f = &Flow{}
 	f.ProcessId = this.Id
 	f.FlowId = xid.NewXID().Hex()
 	f.FlowName = name
-	f.SourceTaskId = source.TaskId
-	f.TargetTaskId = target.TaskId
-	f.TargetTask = target
+	f.SourceTaskId = sourceTask.TaskId
+	f.TargetTaskId = targetTask.TaskId
+	f.TargetTask = targetTask
 	f.ConditionList = c
 	this.FlowList[f.FlowId] = f
 	return f
