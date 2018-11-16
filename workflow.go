@@ -2,6 +2,7 @@ package wf4go
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/smartwalle/xid"
 )
 
@@ -17,6 +18,11 @@ type Process struct {
 
 func LoadProcess(s string) (p *Process, err error) {
 	err = json.Unmarshal([]byte(s), &p)
+	if p != nil {
+		for _, f := range p.FlowList {
+			f.TargetTask = p.TaskList[f.TargetTaskId]
+		}
+	}
 	return p, err
 }
 
@@ -34,6 +40,24 @@ func (this *Process) String() string {
 	return string(ds)
 }
 
+func (this *Process) GetFlow(id string) *Flow {
+	return this.FlowList[id]
+}
+
+func (this *Process) NextFlows(taskId string) []*Flow {
+	var nf []*Flow
+	for _, f := range this.FlowList {
+		if f.SourceTaskId == taskId {
+			nf = append(nf, f)
+		}
+	}
+	return nf
+}
+
+func (this *Process) GetTask(taskId string) *Task {
+	return this.TaskList[taskId]
+}
+
 func (this *Process) AddTask(t *Task) {
 	if t == nil {
 		return
@@ -42,12 +66,20 @@ func (this *Process) AddTask(t *Task) {
 	this.TaskList[t.TaskId] = t
 }
 
+func (this *Process) GetStartTask() *Task {
+	return this.GetTask(this.StartTaskId)
+}
+
 func (this *Process) AddStartTask(t *Task) {
 	if t == nil {
 		return
 	}
 	this.AddTask(t)
 	this.StartTaskId = t.TaskId
+}
+
+func (this *Process) GetEndTask() *Task {
+	return this.GetTask(this.EndTaskId)
 }
 
 func (this *Process) AddEndTask(t *Task) {
@@ -74,9 +106,31 @@ func (this *Process) Link(name string, source, target *Task, c ...*Condition) *F
 	f.FlowName = name
 	f.SourceTaskId = source.TaskId
 	f.TargetTaskId = target.TaskId
+	f.TargetTask = target
 	f.ConditionList = c
 	this.FlowList[f.FlowId] = f
 	return f
+}
+
+func (this *Process) LinkWithId(name string, sourceTaskId, targetTaskId string, c ...*Condition) *Flow {
+	var source = this.GetTask(sourceTaskId)
+	var target = this.GetTask(targetTaskId)
+	return this.Link(name, source, target, c...)
+}
+
+func (this *Process) Unlink(source, target *Task) *Flow {
+	return this.UnlinkWithId(source.TaskId, target.TaskId)
+}
+
+func (this *Process) UnlinkWithId(sourceTaskId, targetTaskId string) *Flow {
+	for _, f := range this.FlowList {
+		if f.SourceTaskId == sourceTaskId && f.TargetTaskId == targetTaskId {
+			f.TargetTask = nil
+			delete(this.FlowList, f.FlowId)
+			return f
+		}
+	}
+	return nil
 }
 
 // --------------------------------------------------------------------------------
@@ -139,6 +193,10 @@ func NewParallelJoinTask(name string) *Task {
 	return t
 }
 
+func (this *Task) String() string {
+	return fmt.Sprintf("%s-%s", this.TaskId, this.TaskName)
+}
+
 // --------------------------------------------------------------------------------
 type Flow struct {
 	ProcessId     string       `json:"process_id"`
@@ -146,18 +204,25 @@ type Flow struct {
 	FlowName      string       `json:"flow_name"`
 	SourceTaskId  string       `json:"source_task_id"`
 	TargetTaskId  string       `json:"target_task_id"`
+	TargetTask    *Task        `json:"-"`
 	ConditionList []*Condition `json:"condition_list,omitempty"`
 }
 
-type Condition struct {
-	FlowId        string `json:"flow_id"`
-	ConditionType int    `json:"condition_type"`
-	Expression    string `json:"expression"`
+func (this *Flow) String() string {
+	return fmt.Sprintf("%s-%s", this.FlowId, this.FlowName)
 }
 
-func NewCondition(cType int, expression string) *Condition {
+// --------------------------------------------------------------------------------
+type Condition struct {
+	Expression string `json:"expression"`
+}
+
+func NewCondition(expression string) *Condition {
 	var fc = &Condition{}
-	fc.ConditionType = cType
 	fc.Expression = expression
 	return fc
+}
+
+func (this *Condition) String() string {
+	return fmt.Sprintf("%s", this.Expression)
 }

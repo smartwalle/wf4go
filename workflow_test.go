@@ -24,12 +24,19 @@ func TestNewProcess(t *testing.T) {
 	p.AddTask(bc)
 
 	p.Link("检查天数", st, cd)
-	p.Link("小于等于3天", cd, mc)
-	p.Link("大于3天", cd, bc)
+	p.Link("小于等于3天", cd, mc, NewCondition("day <= 3"))
+	p.Link("大于3天", cd, bc, NewCondition("day > 3"))
 	p.Link("结束", mc, et)
 	p.Link("结束", bc, et)
 
 	fmt.Println(p)
+
+	var nfs = p.NextFlows(cd.TaskId)
+
+	for _, f := range nfs {
+		fmt.Println(f.TargetTask)
+	}
+
 }
 
 func TestLoadProcess(t *testing.T) {
@@ -114,8 +121,11 @@ func TestLoadProcess(t *testing.T) {
   }
  }
 }
-
 `
+
 	var p, _ = LoadProcess(s)
+
+	p.Unlink(p.GetTask("5bed43d62fbbf7df5f3c0afa"), p.GetTask("5bed43d62fbbf7df5f3c0afc"))
+
 	fmt.Println(p)
 }
