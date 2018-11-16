@@ -8,42 +8,24 @@ import (
 
 // --------------------------------------------------------------------------------
 type Flow struct {
-	ProcessId     string       `json:"process_id"`
-	FlowId        string       `json:"flow_id"`
-	FlowName      string       `json:"flow_name"`
-	SourceTaskId  string       `json:"source_task_id"`
-	TargetTaskId  string       `json:"target_task_id"`
-	TargetTask    *Task        `json:"-"`
-	ConditionList []*Condition `json:"condition_list,omitempty"`
+	ProcessId    string `json:"process_id"`
+	FlowId       string `json:"flow_id"`
+	FlowName     string `json:"flow_name"`
+	SourceTaskId string `json:"source_task_id"`
+	TargetTaskId string `json:"target_task_id"`
+	TargetTask   *Task  `json:"-"`
+	Condition    string `json:"condition,omitempty"`
 }
 
 func (this *Flow) String() string {
 	return fmt.Sprintf("%s-%s", this.FlowId, this.FlowName)
 }
 
+func (this *Flow) Exec(data map[string]interface{}) bool {
+	return exec(this.Condition, data)
+}
+
 // --------------------------------------------------------------------------------
-type Condition struct {
-	Expression string `json:"expression"`
-}
-
-func NewCondition(expression string) *Condition {
-	var fc = &Condition{}
-	fc.Expression = expression
-	return fc
-}
-
-func (this *Condition) String() string {
-	return fmt.Sprintf("%s", this.Expression)
-}
-
-func (this *Condition) Exec(data map[string]interface{}) bool {
-	return false
-}
-
-type Exp struct {
-	f expFunc
-}
-
 func exec(v string, data map[string]interface{}) bool {
 	if data == nil {
 		return false
@@ -70,7 +52,7 @@ func exec(v string, data map[string]interface{}) bool {
 		return false
 	}
 
-	for mk, mv := range m {
+	for _, mk := range expList {
 		if strings.Index(v, mk) != -1 {
 			var nvs = strings.Split(v, mk)
 			if len(nvs) < 2 {
@@ -93,16 +75,19 @@ func exec(v string, data map[string]interface{}) bool {
 			} else {
 				v2 = p2
 			}
-			return mv(v1, v2)
+			var expFunc = expFuncList[mk]
+			return expFunc(v1, v2)
 		}
 	}
 
 	return false
 }
 
+// --------------------------------------------------------------------------------
 type expFunc func(vs ...interface{}) bool
 
-var m = map[string]expFunc{
+var expList = []string{">=", "<=", "!=", ">", "<", "="}
+var expFuncList = map[string]expFunc{
 	">":  gt,
 	">=": gte,
 	"<":  lt,

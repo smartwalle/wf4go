@@ -3,6 +3,7 @@ package wf4go
 import (
 	"encoding/json"
 	"github.com/smartwalle/xid"
+	"strings"
 )
 
 // --------------------------------------------------------------------------------
@@ -99,7 +100,7 @@ func (this *Process) AddEndTask(t *Task) {
 	this.EndTaskId = t.TaskId
 }
 
-func (this *Process) LinkTask(name string, sourceTask, targetTask *Task, c ...*Condition) *Flow {
+func (this *Process) LinkTask(name string, sourceTask, targetTask *Task, c ...string) *Flow {
 	if sourceTask == nil || targetTask == nil {
 		return nil
 	}
@@ -116,12 +117,12 @@ func (this *Process) LinkTask(name string, sourceTask, targetTask *Task, c ...*C
 	f.SourceTaskId = sourceTask.TaskId
 	f.TargetTaskId = targetTask.TaskId
 	f.TargetTask = targetTask
-	f.ConditionList = c
+	f.Condition = strings.Join(c, " && ")
 	this.FlowList[f.FlowId] = f
 	return f
 }
 
-func (this *Process) LinkWithTaskId(name string, sourceTaskId, targetTaskId string, c ...*Condition) *Flow {
+func (this *Process) LinkWithTaskId(name string, sourceTaskId, targetTaskId string, c ...string) *Flow {
 	var source = this.GetTask(sourceTaskId)
 	var target = this.GetTask(targetTaskId)
 	return this.LinkTask(name, source, target, c...)

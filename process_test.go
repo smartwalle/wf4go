@@ -1,44 +1,43 @@
 package wf4go
 
-//
-//import (
-//	"fmt"
-//	"testing"
-//)
-//
-//func TestNewProcess(t *testing.T) {
-//	var p = NewProcess("请假流程")
-//
-//	var st = NewStartTask("开始")
-//	p.AddStartTask(st)
-//
-//	var et = NewEndTask("结束")
-//	p.AddEndTask(et)
-//
-//	var cd = NewExclusiveTask("检查天数")
-//	p.AddTask(cd)
-//
-//	var mc = NewTask("经理审批")
-//	p.AddTask(mc)
-//
-//	var bc = NewTask("老板审批")
-//	p.AddTask(bc)
-//
-//	p.LinkTask("检查天数", st, cd)
-//	p.LinkTask("小于等于3天", cd, mc, NewCondition("day <= 3"))
-//	p.LinkTask("大于3天", cd, bc, NewCondition("day > 3"))
-//	p.LinkTask("结束", mc, et)
-//	p.LinkTask("结束", bc, et)
-//
-//	fmt.Println(p)
-//
-//	var nfs = p.NextFlows(cd.TaskId)
-//
-//	for _, f := range nfs {
-//		fmt.Println(f.TargetTask)
-//	}
-//
-//}
+import (
+	"fmt"
+	"testing"
+)
+
+func TestNewProcess(t *testing.T) {
+	var p = NewProcess("请假流程")
+
+	var st = NewStartTask("开始")
+	p.AddStartTask(st)
+
+	var et = NewEndTask("结束")
+	p.AddEndTask(et)
+
+	var cd = NewExclusiveTask("检查天数")
+	p.AddTask(cd)
+
+	var mc = NewTask("经理审批")
+	p.AddTask(mc)
+
+	var bc = NewTask("老板审批")
+	p.AddTask(bc)
+
+	p.LinkTask("检查天数", st, cd)
+	p.LinkTask("小于等于3天", cd, mc, "day <= 3")
+	p.LinkTask("大于3天", cd, bc, "day > 3")
+	p.LinkTask("结束", mc, et)
+	p.LinkTask("结束", bc, et)
+
+	fmt.Println(p)
+
+	var nfs = p.NextFlows(cd.TaskId)
+
+	for _, f := range nfs {
+		fmt.Println(f.TargetTask)
+	}
+
+}
 
 //func TestLoadProcess(t *testing.T) {
 //	var s = `
