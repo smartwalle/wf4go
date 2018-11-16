@@ -267,6 +267,8 @@ func eq(vs ...interface{}) bool {
 		return vv1 == conv4go.Float64(v2)
 	case string:
 		return vv1 == conv4go.String(v2)
+	case bool:
+		return vv1 == conv4go.Bool(v2)
 	}
 	return false
 }
@@ -302,6 +304,8 @@ func neq(vs ...interface{}) bool {
 		return vv1 != conv4go.Float64(v2)
 	case string:
 		return vv1 != conv4go.String(v2)
+	case bool:
+		return vv1 != conv4go.Bool(v2)
 	}
 	return false
 }
