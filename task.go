@@ -9,14 +9,16 @@ import (
 type TaskType int
 
 const (
-	WF_TASK_TYPE_START          TaskType = iota // 开始任务
-	WF_TASK_TYPE_END                            // 结束任务
-	WF_TASK_TYPE_ASSIGNEE                       // 默认，需要由人员处理
-	WF_TASK_TYPE_EXCLUSIVE                      // 自动流转到下一级任务节点中匹配的任务（执行单一任务）
-	WF_TASK_TYPE_PARALLEL_FORK                  // 自动流转到下一级任务节点中所有的任务（执行所有任务）
-	WF_TASK_TYPE_PARALLEL_JOIN                  // 汇集上一级节点中所有任务，等待上一级所有相关的任务完成后，自动流转到下一级任务
-	WF_TASK_TYPE_INCLUSIVE_FORK                 // 自动流转到下一级任务节点中匹配的任务（执行多个任务）
-	WF_TASK_TYPE_INCLUSIVE_JOIN                 // 汇集上一级节点中所有任务，等待上一级所有相关的任务完成后，自动流转到下一级任务
+	WF_TASK_TYPE_START     TaskType = 1000 // 开始任务
+	WF_TASK_TYPE_END       TaskType = 2000 // 结束任务
+	WF_TASK_TYPE_ASSIGNEE  TaskType = 3000 // 默认，需要由人员处理
+	WF_TASK_TYPE_EXCLUSIVE TaskType = 4000 // 自动流转到下一级任务节点中匹配的任务（执行单一任务）
+
+	WF_TASK_TYPE_PARALLEL_FORK TaskType = 5000 // 自动流转到下一级任务节点中所有的任务（执行所有任务）
+	WF_TASK_TYPE_PARALLEL_JOIN TaskType = 6000 // 汇集上一级节点中所有任务，等待上一级所有相关的任务完成后，自动流转到下一级任务
+
+	WF_TASK_TYPE_INCLUSIVE_FORK TaskType = 7000 // 自动流转到下一级任务节点中匹配的任务（执行多个任务）
+	WF_TASK_TYPE_INCLUSIVE_JOIN TaskType = 8000 // 汇集上一级节点中所有任务，等待上一级所有相关的任务完成后，自动流转到下一级任务
 )
 
 type Task struct {
