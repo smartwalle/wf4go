@@ -8,7 +8,7 @@ import (
 func TestNewProcess(t *testing.T) {
 	var p = NewProcess("请假流程")
 
-	var st = NewTask("开始，收集表单数据，检查天数")
+	var st = NewExclusiveTask("开始，收集表单数据，检查天数")
 	p.AddStartTask(st)
 
 	var et = NewEndTask("结束")
