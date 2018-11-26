@@ -8,14 +8,14 @@ import (
 func TestNewProcess(t *testing.T) {
 	var p = NewProcess("请假流程")
 
-	var st = NewStartTask("开始")
+	var st = NewTask("开始，收集表单数据，检查天数")
 	p.AddStartTask(st)
 
 	var et = NewEndTask("结束")
 	p.AddEndTask(et)
 
-	var cd = NewExclusiveTask("检查天数")
-	p.AddTask(cd)
+	//var cd = NewExclusiveTask("检查天数")
+	//p.AddTask(cd)
 
 	var mc = NewTask("经理审批")
 	p.AddTask(mc)
@@ -23,15 +23,14 @@ func TestNewProcess(t *testing.T) {
 	var bc = NewTask("老板审批")
 	p.AddTask(bc)
 
-	p.LinkTask("检查天数", st, cd)
-	p.LinkTask("小于等于3天", cd, mc, "day <= 3")
-	p.LinkTask("大于3天", cd, bc, "day > 3")
+	p.LinkTask("小于等于3天", st, mc, "day <= 3")
+	p.LinkTask("大于3天", st, bc, "day > 3")
 	p.LinkTask("结束", mc, et)
 	p.LinkTask("结束", bc, et)
 
 	fmt.Println(p)
 
-	var nfs = p.NextFlows(cd.TaskId)
+	var nfs = p.NextFlows(st.TaskId)
 
 	for _, f := range nfs {
 		fmt.Println(f.TargetTask)
