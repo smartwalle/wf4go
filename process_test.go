@@ -30,11 +30,7 @@ func TestNewProcess(t *testing.T) {
 
 	fmt.Println(p)
 
-	var nfs = p.NextFlows(st.TaskId)
-
-	for _, f := range nfs {
-		fmt.Println(f.TargetTask)
-	}
+	fmt.Println(p.Exec(st.TaskId, map[string]interface{}{"day": 3}))
 
 }
 

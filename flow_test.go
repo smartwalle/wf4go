@@ -11,5 +11,5 @@ func TestParse(t *testing.T) {
 		"hour":    5,
 		"my_hour": 10,
 	}
-	fmt.Println(exec("day > 10 && hour < my_hour", p))
+	fmt.Println(exec("", p))
 }

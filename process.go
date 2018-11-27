@@ -169,3 +169,27 @@ func (this *Process) RemoveTaskWithId(taskId string) {
 		}
 	}
 }
+
+func (this *Process) Exec(taskId string, ctx map[string]interface{}, forkTaskIds ...string) []*Task {
+	var t = this.GetTask(taskId)
+	if t == nil {
+		return nil
+	}
+
+	var nt []*Task
+	for _, f := range this.FlowList {
+		if f.SourceTaskId == taskId {
+			switch t.TaskType {
+			case WF_TASK_TYPE_DEFAULT:
+				nt = append(nt, this.GetTask(f.TargetTaskId))
+				return nt
+			case WF_TASK_TYPE_EXCLUSIVE:
+				if exec(f.Condition, ctx) {
+					nt = append(nt, this.GetTask(f.TargetTaskId))
+					return nt
+				}
+			}
+		}
+	}
+	return nt
+}
